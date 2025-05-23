@@ -4,7 +4,7 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
 	imports: [
-		MongooseModule.forRoot('mongodb://localhost/nest-auth'), // use env var for prod
+		MongooseModule.forRoot('mongodb://localhost/AuthenticationDB'), // use env var for prod
 		AuthModule
 	]
 })

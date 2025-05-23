@@ -6,6 +6,7 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
 	//TODO add validation
+
 	@Prop({ required: true, unique: true })
 	email: string;
 
