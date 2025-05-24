@@ -5,7 +5,7 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-	//TODO add validation
+	readonly _id: string;
 
 	@Prop({ required: true, unique: true })
 	email: string;
@@ -15,6 +15,9 @@ export class User {
 
 	@Prop({ required: true })
 	password: string;
+
+	@Prop({ required: false })
+	hashedRefreshToken?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

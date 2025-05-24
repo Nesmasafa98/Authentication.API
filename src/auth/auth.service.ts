@@ -1,29 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// src/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../users/schemas/user.schema';
-import { Model } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
-
+import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
 	constructor(
 		private usersService: UsersService,
 		private jwtService: JwtService,
-
-		@InjectModel(User.name) private userModel: Model<UserDocument>
+		private configService: ConfigService
 	) {}
 
-	async signup(email: string, name: string, password: string): Promise<User> {
+	async signup(email: string, name: string, password: string) {
 		const existingUser = await this.usersService.findByEmail(email);
 		if (existingUser) {
-			throw new UnauthorizedException('Username already exists');
+			throw new ConflictException('User already exists');
 		}
-		return this.usersService.create(email, name, password);
+		const user = await this.usersService.create(email, name, password);
+
+		const payload = { sub: user._id, email: user.email };
+		const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+		const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+		return {
+			user: { id: user._id, email: user.email, name: user.name },
+			access_token: accessToken,
+			refresh_token: refreshToken
+		};
 	}
 
 	async signin(username: string, password: string) {
@@ -32,31 +37,53 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid credentials');
 		}
 
-		const payload = { username: user.email };
+		const payload = { sub: user._id, email: user.email };
 		const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
-		// const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+		const refreshToken = this.jwtService.sign(payload, { expiresIn: '24h' });
 
 		return {
-			access_token: accessToken
-			// refresh_token: refreshToken
+			access_token: accessToken,
+			refresh_token: refreshToken
 		};
 	}
 
-	// async refreshTokens(refreshToken: string) {
-	// 	try {
-	// 		const payload = this.jwtService.verify(refreshToken, {
-	// 			secret: 'your_jwt_secret_key'
-	// 		});
-	// 		const user = await this.usersService.findByUsername(payload.username);
-	// 		if (!user) throw new UnauthorizedException();
+	async refreshTokens(refreshToken: string) {
+		try {
+			const payload = this.jwtService.verify(refreshToken, {
+				secret: this.configService.get('JWT_REFRESH_SECRET')
+			});
 
-	// 		const newPayload = { username: user.username, sub: user.id };
-	// 		return {
-	// 			access_token: this.jwtService.sign(newPayload, { expiresIn: '15m' }),
-	// 			refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' })
-	// 		};
-	// 	} catch (err) {
-	// 		throw new UnauthorizedException('Invalid refresh token');
-	// 	}
-	// }
+			const user = await this.usersService.findById(payload.sub);
+			if (!user || !user.hashedRefreshToken) throw new UnauthorizedException();
+
+			const isMatch = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
+			if (!isMatch) throw new UnauthorizedException('Invalid refresh token');
+
+			const newPayload = { sub: user._id };
+			const accessToken = this.jwtService.sign(newPayload, {
+				expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRATION_MINUTES'),
+				secret: this.configService.get<string>('JWT_ACCESS_SECRET')
+			});
+			const newRefreshToken = this.jwtService.sign(newPayload, {
+				expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION_DAYS'),
+				secret: this.configService.get<string>('JWT_REFRESH_SECRET')
+			});
+
+			await this.usersService.updateRefreshToken(user._id, newRefreshToken);
+
+			return {
+				access_token: accessToken,
+				refresh_token: newRefreshToken
+			};
+		} catch (err) {
+			console.error('Refresh token error:', err);
+			throw new UnauthorizedException('Invalid refresh token');
+		}
+	}
+
+	async logout(userId: string) {
+		await this.usersService.removeRefreshToken(userId);
+		return { message: 'Logged out successfully' };
+	}
 }

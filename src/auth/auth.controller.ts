@@ -1,9 +1,11 @@
-// src/auth/auth.controller.ts
-import { Body, Controller, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SignInDto } from './dto/sign-in.dto';
-// import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -11,8 +13,8 @@ export class AuthController {
 
 	@Post('signup')
 	async signup(@Body() dto: CreateUserDto) {
-		const user = await this.authService.signup(dto.email, dto.name, dto.password);
-		return { email: user.email, name: user.name };
+		const tokens = await this.authService.signup(dto.email, dto.name, dto.password);
+		return { tokens, message: 'User created successfully' };
 	}
 
 	@Post('signin')
@@ -20,14 +22,15 @@ export class AuthController {
 		return this.authService.signin(dto.email, dto.password);
 	}
 
-	// @Post('refresh')
-	// async refresh(@Body('refresh_token') refreshToken: string) {
-	// 	return this.authService.refreshTokens(refreshToken);
-	// }
+	@Post('refresh')
+	async refresh(@Body('refresh_token') refreshToken: string) {
+		return this.authService.refreshTokens(refreshToken);
+	}
 
-	// @UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Post('logout')
-	logout() {
-		return { message: 'Logged out' };
+	async logout(@Req() req) {
+		const userId = req.user.id;
+		return this.authService.logout(userId);
 	}
 }
