@@ -14,13 +14,3 @@ export class SignUpReqDto {
 	})
 	password: string;
 }
-
-export class SignUpResDto {
-	user: {
-		id: string;
-		email: string;
-		name: string;
-	};
-	accessToken: string;
-	refreshToken: string;
-}

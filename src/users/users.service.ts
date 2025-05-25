@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 @Injectable()
 export class UsersService {
@@ -26,7 +26,10 @@ export class UsersService {
 	}
 
 	async findById(id: string): Promise<User | null> {
-		return this.userModel.findOne({ id }).exec();
+		if (!Types.ObjectId.isValid(id)) {
+			return null;
+		}
+		return this.userModel.findById(id).exec();
 	}
 
 	async validateUser(username: string, password: string): Promise<User | null> {
