@@ -53,8 +53,10 @@ export class AuthService {
 			const payload = this.jwtService.verify<{ sub: string }>(oldRefreshToken, {
 				secret: this.configService.get('JWT_REFRESH_SECRET')
 			});
+			console.log('🚀 nesmaaa ~ AuthService ~ refreshTokens ~ payload:', payload);
 
 			const user = await this.usersService.findById(payload.sub);
+			console.log('🚀 nesmaaa ~ AuthService ~ refreshTokens ~ user:', user);
 			if (!user || !user.hashedRefreshToken) throw new UnauthorizedException();
 
 			const isMatch = await bcrypt.compare(oldRefreshToken, user.hashedRefreshToken);
@@ -93,11 +95,10 @@ export class AuthService {
 
 	private async setTokens(user: User) {
 		const payload = { sub: user._id, email: user.email };
-		const accessToken = this.jwtService.sign(payload, {
-			expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRATION_MINUTES')
-		});
+		const accessToken = this.jwtService.sign(payload);
 		const refreshToken = this.jwtService.sign(payload, {
-			expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION_DAYS')
+			expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION_DAYS'),
+			secret: this.configService.get('JWT_REFRESH_SECRET')
 		});
 
 		await this.usersService.updateRefreshToken(user._id, refreshToken);
