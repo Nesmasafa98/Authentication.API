@@ -15,7 +15,7 @@ A simple authentication API built with [NestJS](https://nestjs.com/) that suppor
 
 - [Node.js](https://nodejs.org/) (v16 or higher recommended)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
-- [PostgreSQL](https://www.postgresql.org/) or your preferred database (if using a database)
+- [MongoDB]
 
 ## Installation
 
