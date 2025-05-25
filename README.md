@@ -43,12 +43,6 @@ A simple authentication API built with [NestJS](https://nestjs.com/) that suppor
     DATABASE_URL=your_database_connection_string
     ```
 
-4. **Run database migrations** (if applicable):
-    ```sh
-    npm run typeorm migration:run
-    ```
-    _(Skip if not using TypeORM or migrations)_
-
 ## Running the Project
 
 ### Development
@@ -64,34 +58,6 @@ The API will be available at `http://localhost:3000/api/auth`.
 ```sh
 npm run build
 npm run start:prod
-```
-
-## API Endpoints
-
-- `POST /api/auth/signup` — Register a new user
-- `POST /api/auth/signin` — Login and receive tokens
-- `POST /api/auth/refresh` — Refresh JWT tokens
-- `POST /api/auth/logout` — Logout (requires authentication)
-
-## Project Structure
-
-```
-src/
-  auth/
-    auth.controller.ts
-    auth.service.ts
-    dto/
-      sign-in.dto.ts
-      sign-up.dto.ts
-      token.dto.ts
-    guards/
-      logout-jwt-auth.guard.ts
-  users/
-    dto/
-      create-user.dto.ts
-    entities/
-      user.entity.ts
-  main.ts
 ```
 
 ## License
