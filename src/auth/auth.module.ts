@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -7,16 +6,12 @@ import { AuthController } from './auth.controller';
 import { UsersService } from '../users/users.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/schemas/user.schema';
-import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './startegies/jwt.strategy';
 
 @Module({
 	imports: [
 		PassportModule,
-		JwtModule.register({
-			secret: 'your_jwt_secret_key',
-			signOptions: { expiresIn: '15m' }
-		}),
 		MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
 		JwtModule.registerAsync({
 			imports: [ConfigModule],

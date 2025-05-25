@@ -26,8 +26,8 @@ export class AuthService {
 
 		return {
 			user: { id: user._id, email: user.email, name: user.name },
-			access_token: accessToken,
-			refresh_token: refreshToken
+			accessToken: accessToken,
+			refreshToken: refreshToken
 		};
 	}
 
@@ -43,8 +43,9 @@ export class AuthService {
 		const refreshToken = this.jwtService.sign(payload, { expiresIn: '24h' });
 
 		return {
-			access_token: accessToken,
-			refresh_token: refreshToken
+			user: { id: user._id, email: user.email, name: user.name },
+			accessToken: accessToken,
+			refreshToken: refreshToken
 		};
 	}
 

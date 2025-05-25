@@ -3,23 +3,41 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { SignInDto } from './dto/sign-in.dto';
+import { SignInReqDto, SignInResDto } from './dto/sign-in.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { SignUpReqDto, SignUpResDto } from './dto/sign-up.dto';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
 	constructor(private authService: AuthService) {}
 
 	@Post('signup')
-	async signup(@Body() dto: CreateUserDto) {
-		const tokens = await this.authService.signup(dto.email, dto.name, dto.password);
-		return { tokens, message: 'User created successfully' };
+	async signup(@Body() dto: SignUpReqDto): Promise<ApiResponseDto<SignUpResDto>> {
+		const { user, accessToken, refreshToken } = await this.authService.signup(dto.email, dto.name, dto.password);
+		return {
+			statusCode: 200,
+			message: 'User signed in successfully',
+			data: {
+				accessToken,
+				refreshToken,
+				user
+			}
+		};
 	}
 
 	@Post('signin')
-	async signin(@Body() dto: SignInDto) {
-		return this.authService.signin(dto.email, dto.password);
+	async signin(@Body() dto: SignInReqDto): Promise<ApiResponseDto<SignInResDto>> {
+		const { user, accessToken, refreshToken } = await this.authService.signin(dto.email, dto.password);
+		return {
+			statusCode: 200,
+			message: 'User signed in successfully',
+			data: {
+				accessToken,
+				refreshToken,
+				user
+			}
+		};
 	}
 
 	@Post('refresh')

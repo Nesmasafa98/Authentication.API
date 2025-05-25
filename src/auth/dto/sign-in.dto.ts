@@ -1,6 +1,6 @@
 import { IsEmail, IsString, Matches } from 'class-validator';
 
-export class SignInDto {
+export class SignInReqDto {
 	@IsEmail()
 	email: string;
 
@@ -10,4 +10,14 @@ export class SignInDto {
 			'Password must be at least 8 characters long, contain one letter, one number, and one special character.'
 	})
 	password: string;
+}
+
+export class SignInResDto {
+	accessToken: string;
+	refreshToken: string;
+	user: {
+		id: string;
+		email: string;
+		name: string;
+	};
 }
