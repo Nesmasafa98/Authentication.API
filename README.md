@@ -34,14 +34,10 @@ A simple authentication API built with [NestJS](https://nestjs.com/) that suppor
 
 3. **Configure environment variables:**
 
-    Create a `.env` file in the root directory and set the following variables as needed:
+    Create a `.env` file in the root directory.
+	You may find a template in .env.default, please set all the available variables in your `.env`.
 
-    ```
-    PORT=3000
-    JWT_SECRET=your_jwt_secret
-    JWT_REFRESH_SECRET=your_jwt_refresh_secret
-    DATABASE_URL=your_database_connection_string
-    ```
+
 
 ## Running the Project
 
