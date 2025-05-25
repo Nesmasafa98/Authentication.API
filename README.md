@@ -56,11 +56,5 @@ npm run build
 npm run start:prod
 ```
 
-## License
-
-MIT
-
----
-
 **Note:**  
 Update the database configuration and JWT secrets according to your environment and security requirements.
