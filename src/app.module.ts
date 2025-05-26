@@ -23,10 +23,11 @@ import { UsersModule } from './users/users.module';
 		ThrottlerModule.forRoot({
 			throttlers: [
 				{
-					ttl: 60,
+					ttl: 6000,
 					limit: 3
 				}
-			]
+			],
+			errorMessage: 'Too many requests, please try again later.'
 		})
 	],
 	providers: [
