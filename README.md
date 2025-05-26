@@ -15,7 +15,7 @@ A simple authentication API built with [NestJS](https://nestjs.com/) that suppor
 
 - [Node.js](https://nodejs.org/) (v16 or higher recommended)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
-- [PostgreSQL](https://www.postgresql.org/) or your preferred database (if using a database)
+- [MongoDB](https://www.mongodb.com/)
 
 ## Installation
 
@@ -34,20 +34,10 @@ A simple authentication API built with [NestJS](https://nestjs.com/) that suppor
 
 3. **Configure environment variables:**
 
-    Create a `.env` file in the root directory and set the following variables as needed:
+    Create a `.env` file in the root directory.
+	You may find a template in .env.default, please set all the available variables in your `.env`.
 
-    ```
-    PORT=3000
-    JWT_SECRET=your_jwt_secret
-    JWT_REFRESH_SECRET=your_jwt_refresh_secret
-    DATABASE_URL=your_database_connection_string
-    ```
 
-4. **Run database migrations** (if applicable):
-    ```sh
-    npm run typeorm migration:run
-    ```
-    _(Skip if not using TypeORM or migrations)_
 
 ## Running the Project
 
@@ -65,40 +55,6 @@ The API will be available at `http://localhost:3000/api/auth`.
 npm run build
 npm run start:prod
 ```
-
-## API Endpoints
-
-- `POST /api/auth/signup` — Register a new user
-- `POST /api/auth/signin` — Login and receive tokens
-- `POST /api/auth/refresh` — Refresh JWT tokens
-- `POST /api/auth/logout` — Logout (requires authentication)
-
-## Project Structure
-
-```
-src/
-  auth/
-    auth.controller.ts
-    auth.service.ts
-    dto/
-      sign-in.dto.ts
-      sign-up.dto.ts
-      token.dto.ts
-    guards/
-      logout-jwt-auth.guard.ts
-  users/
-    dto/
-      create-user.dto.ts
-    entities/
-      user.entity.ts
-  main.ts
-```
-
-## License
-
-MIT
-
----
 
 **Note:**  
 Update the database configuration and JWT secrets according to your environment and security requirements.
