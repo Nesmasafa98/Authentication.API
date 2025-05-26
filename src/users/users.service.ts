@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
@@ -51,14 +50,20 @@ export class UsersService {
 
 	async updateRefreshToken(userId: string, refreshToken: string) {
 		const hashedToken = await bcrypt.hash(refreshToken, 10);
+
+		// Get from env to configure time accurately.
+		const expiresInMs = 1 * 24 * 60 * 60 * 1000;
+
 		await this.userModel.findByIdAndUpdate(userId, {
-			hashedRefreshToken: hashedToken
+			hashedRefreshToken: hashedToken,
+			refreshTokenExpiresAt: new Date(Date.now() + expiresInMs)
 		});
 	}
 
 	async removeRefreshToken(userId: string) {
 		await this.userModel.findByIdAndUpdate(userId, {
-			hashedRefreshToken: null
+			hashedRefreshToken: null,
+			refreshTokenExpiresAt: null
 		});
 	}
 }

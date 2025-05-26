@@ -18,6 +18,13 @@ export class User {
 
 	@Prop({ required: false })
 	hashedRefreshToken?: string;
+
+	// To auto-remove the field/document after this date
+	@Prop({
+		type: Date,
+		index: { expires: 0 }
+	})
+	refreshTokenExpiresAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
