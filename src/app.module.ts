@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -18,8 +17,7 @@ import { UsersModule } from './users/users.module';
 			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: async (configService: ConfigService) => ({
-				uri: configService.get<string>('MONGO_URI'),
-				sanitizeFilters: true
+				uri: configService.get<string>('MONGO_URI')
 			})
 		}),
 		ThrottlerModule.forRoot({

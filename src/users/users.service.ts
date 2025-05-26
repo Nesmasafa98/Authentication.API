@@ -8,6 +8,8 @@ export class UsersService {
 	constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
 	async findAll(): Promise<User[]> {
+		// lean to avoid mongoose virtual fields
+		// discard unwanted fields.
 		const users = await this.userModel.find({}, { password: 0, hashedRefreshToken: 0, __v: 0 }).lean();
 
 		return users.map((user) => ({

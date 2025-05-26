@@ -1,13 +1,24 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import ExpressMongoSanitize from 'express-mongo-sanitize';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import mongoose from 'mongoose';
 import { WinstonModule } from 'nest-winston';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { winstonConfig } from './logger/winston.config';
 
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+	console.error('Uncaught Exception thrown:', error);
+	process.exit(1);
+});
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
 		logger: WinstonModule.createLogger(winstonConfig)
@@ -17,7 +28,7 @@ async function bootstrap() {
 	app.use(helmet());
 
 	// Protect from NoSQL injection
-	app.use(ExpressMongoSanitize());
+	mongoose.set('sanitizeFilter', true);
 
 	// CORS
 	// Get from env your origin
@@ -44,18 +55,21 @@ async function bootstrap() {
 	//Handle safe shutdown within modules.
 	app.enableShutdownHooks();
 
+	// --- Add Swagger setup here ---
+	const config = new DocumentBuilder()
+		.setTitle('Authentication API')
+		.setDescription(
+			'API for user authentication including signin, signup, token refresh, and logout functionalities.'
+		)
+		.setVersion('1.0')
+		.addBearerAuth()
+		.build();
+
+	const document = SwaggerModule.createDocument(app, config);
+	SwaggerModule.setup('api', app, document);
+	// --- Swagger setup ends here ---
+
 	await app.listen(process.env.PORT ?? 3000);
 }
 
 bootstrap();
-
-// Global error handlers
-process.on('unhandledRejection', (reason, promise) => {
-	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-	process.exit(1);
-});
-
-process.on('uncaughtException', (error) => {
-	console.error('Uncaught Exception thrown:', error);
-	process.exit(1);
-});
